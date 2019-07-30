@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <title>消灭星星</title>
+  <link rel="stylesheet" href="./Exterminate_Stars.css">
+</head>
+
+<body>
+  <div id="title">
+    <div id="level"><b>第<span>1</span>关</b></div>
+    <div><b id="score_target">Target:<span></span></b></div>
+    <div><b id="score" class="left">Score :<span>0</span></b></div>
+  </div>
+  <div id="contain"></div>
+  <div id="gameover">
+    <div class="gameover">
+      <p>恭喜你通过了<span id="end_level"></span>关！</p>
+      <p>GAME OVER!</p>
+      <a href="javascript:game.start()">再来一次</a>
+    </div>
+  </div>
+  <div id="end">
+    <p>PASS!</p>
+    <span>SCORE:+0</span><br />
+    <a href="javascript:game.pass()">下一关</a>
+  </div>
+</body>
+<script src="./jquery-1.11.3.js"></script>
+<script src="./Exterminate_Stars.js"></script>
+
+</html>

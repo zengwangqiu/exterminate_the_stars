@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+<script>
+	window.onload = function () {
+		var cheersData2d; // 棋盘二维位置索引；
+		var cheersData;
+		var rowTotal = 9;
+		var colTotal = 9;
+		var size = 50;
+		var colorNum = 2;
+		var moveEvent = new CustomEvent('move', {
+			detail: { data: 'need to move' },
+		});
+		function Creator(row, col) {
+			var color = ['red', 'black', 'yellow', 'blue', 'green']
+			var node = document.createElement('div');
+			node.style.width = size + 'px';
+			node.style.height = size + 'px';
+			node.style.position = 'absolute';
+			node.style.transition = 'top 0.2s,left 0.2s,opacity 0.2s';
+			var target = new Proxy({}, {
+				get(obj, prop) {
+					return obj[prop];
+				},
+				set(obj, prop, value) {
+					switch (prop) {
+						case 'value':
+							node.style.backgroundColor = color[value];
+							obj[prop] = value;
+							break;
+						case 'select':
+							if (value) {
+								node.style.opacity = 0.5;
+							} else {
+								node.style.opacity = 1;
+							}
+							obj[prop] = value;
+							break;
+						case 'position':
+							node.style.top = value.row * size + 'px';
+							node.style.left = value.col * size + 'px';
+							if (obj[prop]) {
+								cheersData2d[obj[prop].row][obj[prop].col] = undefined;
+							}
+							cheersData2d[value.row][value.col] = target;
+							obj[prop] = value;
+							break;
+						default:
+							obj[prop] = value;
+							break;
+					}
+				}
+			})
+			target.node = node;
+			target.value = Math.floor(Math.random() * colorNum);
+			target.position = { row, col };
+			target.select = false;
+			node.onclick = () => {
+				if (target.select) {
+					// 移除选择的dom
+					var needRemove = []
+					for (var i = 0; i < cheersData.length; i++) {
+						var cheerdata = cheersData[i];
+						if (cheerdata && cheerdata.select) {
+							needRemove.push({ cheerdata, index: i })
+						}
+					}
+					if (needRemove.length > 1) {
+						for (var i = 0; i < needRemove.length; i++) {
+							var cheerdata = needRemove[i].cheerdata;
+							var index = needRemove[i].index;
+							cheerdata.node.remove();
+							cheersData2d[cheerdata.position.row][cheerdata.position.col] = undefined;
+							cheersData[index] = undefined;
+							cheerdata = undefined;
+						}
+						// 通知整理棋盘
+						window.dispatchEvent(moveEvent);
+					}
+
+				} else {
+					// 清除原有选择项
+					for (var i = 0; i < cheersData.length; i++) {
+						var cheerdata = cheersData[i];
+						if (cheerdata && cheerdata.select) {
+							cheerdata.select = false;
+						}
+					}
+					// 选择自身
+					target.select = true;
+					// 扩散选择 定时器只是用来演示选择过程；
+					setTimeout(() => {
+						target.top(target.value);
+						target.bottom(target.value);
+						target.left(target.value);
+						target.right(target.value);
+					}, 200);
+				}
+			}
+			target.top = (value) => {
+				if (target.position.row > 0) {
+					var cheer = cheersData2d[target.position.row - 1][target.position.col];
+					if (cheer && !cheer.select && cheer.value == value) {
+						// 选择靠上的元素
+						cheer.select = true;
+						// 扩散选择 定时器只是用来演示选择过程；（去除向下 往回的方向）
+						setTimeout(() => {
+							cheer.top(value);
+							cheer.left(value);
+							cheer.right(value);
+						}, 200);
+					}
+				}
+			}
+			target.bottom = (value) => {
+				if (target.position.row < rowTotal - 1) {
+					var cheer = cheersData2d[target.position.row + 1][target.position.col];
+					if (cheer && !cheer.select && cheer.value == value) {
+						cheer.select = true;
+						setTimeout(() => {
+							cheer.bottom(value);
+							cheer.left(value);
+							cheer.right(value);
+						}, 200);
+					}
+				}
+			}
+			target.left = (value) => {
+				if (target.position.col > 0) {
+					var cheer = cheersData2d[target.position.row][target.position.col - 1];
+					if (cheer && !cheer.select && cheer.value == value) {
+						cheer.select = true;
+						setTimeout(() => {
+							cheer.left(value);
+							cheer.top(value);
+							cheer.bottom(value);
+						}, 200);
+					}
+				}
+			}
+			target.right = (value) => {
+				if (target.position.col < colTotal - 1) {
+					var cheer = cheersData2d[target.position.row][target.position.col + 1];
+					if (cheer && !cheer.select && cheer.value == value) {
+						cheer.select = true;
+						setTimeout(() => {
+							cheer.right(value);
+							cheer.top(value);
+							cheer.bottom(value);
+						}, 200);
+					}
+				}
+			}
+			return target
+		}
+
+		// 棋盘数据生成
+		function createCheersData(row, col) {
+			var cheers = [];
+			cheersData2d = [];
+			for (var i = 0; i < row; i++) {
+				cheersData2d[i] = [];
+				for (var j = 0; j < col; j++) {
+					var cheer = Creator(i, j);
+					cheers.push(cheer);
+				}
+			}
+			return cheers;
+		};
+
+		// 棋盘dom
+		function createCheers(row, col) {
+			var cheersdom = document.createElement('div');
+			cheersdom.style.position = 'relative';
+			cheersdom.style.height = col * size + 'px';
+			cheersdom.style.height = col * size + 'px';
+			cheersData = createCheersData(row, col);
+			for (var i = 0; i < cheersData.length; i++) {
+				if (cheersData[i]) {
+					cheersdom.appendChild(cheersData[i].node);
+				}
+			}
+			document.body.appendChild(cheersdom);
+
+			window.addEventListener('move', async function (event) {
+				console.log(event.detail.data);
+				// 向下整理
+				async function colMoveDown(c) {
+					var moveStep = 0;
+					for (var r = rowTotal - 1; r >= 0; r--) {
+						if (!cheersData2d[r][c]) {
+							moveStep++
+						} else {
+							if (moveStep) {
+								var cheer = cheersData2d[r][c]
+								var position = cheer.position;
+								await new Promise(resolve => {
+									setTimeout(() => {
+										cheer.position = {
+											row: position.row + moveStep,
+											col: position.col
+										}
+										resolve()
+									}, 200);
+								})
+							}
+						}
+					}
+					moveStep = 0;
+				}
+				function isEmptyCol(c) {
+					for (var r = 0; r < rowTotal; r++) {
+						if (cheersData2d[r][c]) {
+							return false;
+						}
+					}
+					return true;
+				}
+				async function moveColLeftByStep(c, step) {
+					if (step) {
+						for (var r = 0; r < rowTotal; r++) {
+							var cheer = cheersData2d[r][c];
+							if (cheer) {
+								position = cheer.position
+								await new Promise(resolve => {
+									setTimeout(() => {
+										cheersData2d[r][c] = undefined;
+										cheer.position = {
+											row: position.row,
+											col: position.col - step,
+										}
+										resolve();
+									}, 200);
+								})
+							}
+						}
+					}
+				}
+				// 遍历所有列
+				var moveColStep = 0;
+				for (var c = 0; c < colTotal; c++) {
+					if (isEmptyCol(c)) { moveColStep++ };
+					await colMoveDown(c);
+					await moveColLeftByStep(c, moveColStep);
+				}
+
+			});
+		}
+		createCheers(rowTotal, colTotal)
+	}
+</script>
+
+</html>

@@ -39,7 +39,7 @@ var game = {
       html += "<div class='row'>";
       for (var c = 0; c < this.CN; c++) {
         if (this.data[r][c] !== 0) {
-          html += "<div class='col'><img id=" + "c" + r + "_" + c + " src=./" + this.data[r][c] + ".jpg></div>";
+          html += "<div class='col'><img id=" + "c" + r + "_" + c + " src=./" + this.data[r][c] + ".png></div>";
         } else {
           html += "<div class='col'></div>";
         }

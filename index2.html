@@ -133,12 +133,12 @@
 		gamepassNode: document.getElementById("pass"),
 		gameaddScoreNode: document.getElementById("addScore"),
 		chessData2d: null,       // 棋盘二维位置索引；
-		rowTotal: 5,             // 总行数
-		colTotal: 5,             // 总列数
+		rowTotal: 9,             // 总行数
+		colTotal: 9,             // 总列数
 		score: 0,                // 总分数
 		size: 0,                 // 图片尺寸
 		imgCount: 5,             // 星星种类
-		baseNum: 500,           // 技术分数
+		baseNum: 5000,           // 技术分数
 		target: 0,            // 目标范围内书
 		level: 1,                // 当前关数
 		increaseNum: 1000,       // 每关增长的分数
@@ -345,7 +345,7 @@
 				await this.colMoveDown(c);
 				await this.moveColLeftByStep(c, moveColStep);
 			}
-			
+
 		},
 		start() {
 			this.score = 0;
